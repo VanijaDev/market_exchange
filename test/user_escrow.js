@@ -5,9 +5,12 @@ const Asserts = require("./helpers/asserts");
 
 
 contract("UserEscrow", (accounts) => {
-  const OWNER = accounts[0];
-  const USER_ADDRESS = accounts[1];
-  const TRANSFER_TO_ADDRESS = accounts[2];
+  let signatory_0 = accounts[9];
+  let signatory_1 = accounts[8];
+  let signatory_2 = accounts[7];
+  let signatory_fake = accounts[4];
+  let user = accounts[6];
+  let recipient = accounts[5];
 
   let escrow;
   let asserts = Asserts(assert);
@@ -22,9 +25,6 @@ contract("UserEscrow", (accounts) => {
   });
 
   it("should validate signatories are being set correct", async () => {
-    let signatory_0 = accounts[9];
-    let signatory_1 = accounts[8];
-    let signatory_2 = accounts[7];
 
     assert.equal(await escrow.signatories.call(0), signatory_0, "wrong signatory_0");
     assert.equal(await escrow.signatories.call(1), signatory_1, "wrong signatory_1");
@@ -36,13 +36,6 @@ contract("UserEscrow", (accounts) => {
   });
 
   it("should transfer funds only after all signatories would approve", async () => {
-    let signator_0 = accounts[9];
-    let signator_1 = accounts[8];
-    let signator_2 = accounts[7];
-    let signator_fake = accounts[4];
-
-    let user = accounts[6];
-    let recipient = accounts[5];
     let deposit = web3.toWei(10, "ether");
 
     //  user sends funds to escrow
@@ -55,40 +48,36 @@ contract("UserEscrow", (accounts) => {
     //  test signatures
     let recipientBalanceBefore = new BigNumber(await web3.eth.getBalance(recipient));
 
-    //  signator_0
+    //  signatory_0
     await escrow.transferFundsTo(recipient, {
-      from: signator_0
+      from: signatory_0
     });
-    assert.equal(recipientBalanceBefore.toNumber(), new BigNumber(await web3.eth.getBalance(recipient)).toNumber(), "recipient Balance should not be changed after signator_0");
-    assert.equal(new BigNumber(await web3.eth.getBalance(escrow.address)).toNumber(), deposit, "escrow funds should not be moved after signator_0");
+    assert.equal(recipientBalanceBefore.toNumber(), new BigNumber(await web3.eth.getBalance(recipient)).toNumber(), "recipient Balance should not be changed after signatory_0");
+    assert.equal(new BigNumber(await web3.eth.getBalance(escrow.address)).toNumber(), deposit, "escrow funds should not be moved after signatory_0");
 
-    //  signator_1
+    //  signatory_1
     await escrow.transferFundsTo(recipient, {
-      from: signator_1
+      from: signatory_1
     });
-    assert.equal(recipientBalanceBefore.toNumber(), new BigNumber(await web3.eth.getBalance(recipient)).toNumber(), "recipient Balance should not be changed after signator_1");
-    assert.equal(new BigNumber(await web3.eth.getBalance(escrow.address)).toNumber(), deposit, "escrow funds should not be moved after signator_1");
+    assert.equal(recipientBalanceBefore.toNumber(), new BigNumber(await web3.eth.getBalance(recipient)).toNumber(), "recipient Balance should not be changed after signatory_1");
+    assert.equal(new BigNumber(await web3.eth.getBalance(escrow.address)).toNumber(), deposit, "escrow funds should not be moved after signatory_1");
 
-    //  signator_fake
+    //  signatory_fake
     await asserts.throws(escrow.transferFundsTo(recipient, {
-      from: signator_fake
+      from: signatory_fake
     }));
-    assert.equal(recipientBalanceBefore.toNumber(), new BigNumber(await web3.eth.getBalance(recipient)).toNumber(), "recipient Balance should not be changed after signator_1");
-    assert.equal(new BigNumber(await web3.eth.getBalance(escrow.address)).toNumber(), deposit, "escrow funds should not be moved after signator_1");
+    assert.equal(recipientBalanceBefore.toNumber(), new BigNumber(await web3.eth.getBalance(recipient)).toNumber(), "recipient Balance should not be changed after signatory_1");
+    assert.equal(new BigNumber(await web3.eth.getBalance(escrow.address)).toNumber(), deposit, "escrow funds should not be moved after signatory_1");
 
-    //  signator_2
+    //  signatory_2
     await escrow.transferFundsTo(recipient, {
-      from: signator_2
+      from: signatory_2
     });
-    assert.equal(new BigNumber(await web3.eth.getBalance(recipient).minus(recipientBalanceBefore)).toNumber(), deposit, "recipient Balance should include deposit after signator_2");
-    assert.equal(new BigNumber(await web3.eth.getBalance(escrow.address)).toNumber(), 0, "escrow funds should be moved after signator_2");
+    assert.equal(new BigNumber(await web3.eth.getBalance(recipient).minus(recipientBalanceBefore)).toNumber(), deposit, "recipient Balance should include deposit after signatory_2");
+    assert.equal(new BigNumber(await web3.eth.getBalance(escrow.address)).toNumber(), 0, "escrow funds should be moved after signatory_2");
   });
 
   it("should throw if fake signator", async () => {
-    let signator_fake = accounts[4];
-
-    let user = accounts[6];
-    let recipient = accounts[5];
     let deposit = web3.toWei(10, "ether");
 
     //  user sends funds to escrow
@@ -97,9 +86,9 @@ contract("UserEscrow", (accounts) => {
       value: deposit
     });
 
-    //  signator_fake
+    //  signatory_fake
     await asserts.throws(escrow.transferFundsTo(recipient, {
-      from: signator_fake
+      from: signatory_fake
     }), "should throw if fake signator tries to sign");
   });
 });
