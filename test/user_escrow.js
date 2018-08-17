@@ -1,10 +1,10 @@
-const UserEscrow = artifacts.require("UserEscrow");
+const MRC_UserEscrow = artifacts.require("MRC_UserEscrow");
 const BigNumber = require("bignumber.js");
 const Reverter = require("./helpers/reverter");
 const Asserts = require("./helpers/asserts");
 
 
-contract("UserEscrow", (accounts) => {
+contract("MRC_UserEscrow", (accounts) => {
   let signatory_0 = accounts[9];
   let signatory_1 = accounts[8];
   let signatory_2 = accounts[7];
@@ -16,7 +16,7 @@ contract("UserEscrow", (accounts) => {
   let asserts = Asserts(assert);
 
   before("setup", async () => {
-    escrow = await UserEscrow.deployed();
+    escrow = await MRC_UserEscrow.deployed();
     await Reverter.snapshot();
   });
 
@@ -32,7 +32,7 @@ contract("UserEscrow", (accounts) => {
   });
 
   it("should fail because of wrong signator", async () => {
-    await asserts.throws(UserEscrow.new([0, accounts[9], accounts[8]]), "each signatory address should be valid");
+    await asserts.throws(MRC_UserEscrow.new([0, accounts[9], accounts[8]]), "each signatory address should be valid");
   });
 
   it("should transfer funds only after all signatories would approve", async () => {

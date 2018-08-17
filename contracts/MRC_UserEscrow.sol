@@ -4,15 +4,15 @@ import "../node_modules/openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 
 /**
- * @title UserEscrow
+ * @title MRC_UserEscrow
  * @dev The UserEscrow contract is used for receiving funds from user and transferring them to exchange deposit.
  */
-contract UserEscrow is Ownable {
+contract MRC_UserEscrow is Ownable {
   address[] public signatories;
   mapping (address => bool) public signatoriesSigned;
 
   /**
-   * @notice Create a new UserEscrow Contract.
+   * @notice Create a new MRC_UserEscrow Contract.
    * @param _signatories signatories needed for fund transfer.
    */
   constructor(address[] _signatories) public {
