@@ -8,8 +8,12 @@ import "../node_modules/openzeppelin-solidity/contracts/ownership/Ownable.sol";
  * @dev The UserEscrow contract is used for receiving funds from user and transferring them to exchange deposit.
  */
 contract MRC_UserEscrow is Ownable {
+  address public user;
   address[] public signatories;
   mapping (address => bool) public signatoriesSigned;
+
+  event UserEscrowDeposited(address indexed _user, uint256 indexed _wei);
+  event UserEscrowTransferred(address indexed _user, uint256 indexed _wei, address indexed _escrow);
 
   /**
    * @notice Create a new MRC_UserEscrow Contract.
@@ -20,7 +24,11 @@ contract MRC_UserEscrow is Ownable {
     signatories = _signatories;
   }
 
-  function() public payable {}
+  function() public payable {
+    user = msg.sender;
+    //  TEST
+    emit UserEscrowDeposited(msg.sender, msg.value);
+  }
 
 
   /**
@@ -51,7 +59,9 @@ contract MRC_UserEscrow is Ownable {
     signedBy += 1;
 
     if(signedBy == signatories.length) {
-      _address.transfer(address(this).balance);
+      uint256 weiAmount = address(this).balance;
+      _address.transfer(weiAmount);
+      emit UserEscrowTransferred(user, weiAmount, _address);
     }
   }
 

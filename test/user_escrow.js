@@ -91,4 +91,51 @@ contract("MRC_UserEscrow", (accounts) => {
       from: signatory_fake
     }), "should throw if fake signator tries to sign");
   });
+
+  describe("Events", () => {
+    it("should emit UserEscrowDeposited when deposited by user", async () => {
+      let deposit = web3.toWei(10, "ether");
+
+      let tx = await escrow.sendTransaction({
+        from: user,
+        value: deposit
+      });
+
+      assert.equal(tx.logs.length, 1, "should be single log on user deposit");
+      assert.equal(tx.logs[0].event, "UserEscrowDeposited", "wrong event name");
+      assert.equal(tx.logs[0].args._user, user, "wrong user address");
+      assert.equal(tx.logs[0].args._wei.toNumber(), deposit, "wrong wei amount");
+
+    });
+
+    it("should emit UserEscrowTransferred when funds moved to exchange deposit", async () => {
+      let deposit = web3.toWei(10, "ether");
+
+      await escrow.sendTransaction({
+        from: user,
+        value: deposit
+      });
+
+      //  signatory_0
+      await escrow.transferFundsTo(recipient, {
+        from: signatory_0
+      });
+
+      //  signatory_1
+      await escrow.transferFundsTo(recipient, {
+        from: signatory_1
+      });
+
+      //  signatory_2
+      let tx_to_exchange = await escrow.transferFundsTo(recipient, {
+        from: signatory_2
+      });
+
+      assert.equal(tx_to_exchange.logs.length, 1, "should be single log on user deposit");
+      assert.equal(tx_to_exchange.logs[0].event, "UserEscrowTransferred", "wrong event name");
+      assert.equal(tx_to_exchange.logs[0].args._user, user, "wrong user address");
+      assert.equal(tx_to_exchange.logs[0].args._wei.toNumber(), deposit, "wrong wei amount");
+      assert.equal(tx_to_exchange.logs[0].args._escrow, recipient, "wrong escrow address");
+    });
+  });
 });
