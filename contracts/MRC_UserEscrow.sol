@@ -26,7 +26,6 @@ contract MRC_UserEscrow is Ownable {
 
   function() public payable {
     user = msg.sender;
-    //  TEST
     emit UserEscrowDeposited(msg.sender, msg.value);
   }
 
