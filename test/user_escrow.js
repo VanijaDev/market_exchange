@@ -25,7 +25,6 @@ contract("MRC_UserEscrow", (accounts) => {
   });
 
   it("should validate signatories are being set correct", async () => {
-
     assert.equal(await escrow.signatories.call(0), signatory_0, "wrong signatory_0");
     assert.equal(await escrow.signatories.call(1), signatory_1, "wrong signatory_1");
     assert.equal(await escrow.signatories.call(2), signatory_2, "wrong signatory_2");
